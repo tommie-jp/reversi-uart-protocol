@@ -1,0 +1,36 @@
+@startuml
+title Minimal FPGA implementation (required commands only are conformant)
+
+skinparam shadowing false
+hide stereotype
+skinparam defaultFontSize 15
+skinparam nodesep 40
+skinparam ranksep 45
+skinparam RectangleBackgroundColor<<proto>> #E3F2FD
+skinparam RectangleBackgroundColor<<cpu>> #FFF3E0
+skinparam RectangleBackgroundColor<<skip>> #F5F5F5
+skinparam RectangleBorderColor<<skip>> #9E9E9E
+skinparam RectangleFontColor<<skip>> #616161
+
+rectangle "PC\n(via USB-UART\nconverter)" as PC
+
+rectangle "UART RX\n8N1, no flow control\nany baud rate" as RX <<proto>>
+rectangle "Line parser\n2 chars + args + CR LF\n100 ms inter-char timeout\ndrop empty lines" as PARSE <<proto>>
+rectangle "Command compare\nSB SW MO PA\nEB EW ED VE PI\nuppercase only" as DEC <<proto>>
+rectangle "State machine\nIDLE / MY_TURN / WAIT_OPP\n(BOOT only after reset)" as FSM <<proto>>
+rectangle "Response generator\nMOd? / PA / +PI\n+VE02 / fixed -00" as GEN <<proto>>
+rectangle "UART TX\nindependent of RX\n(never drop RX while sending)" as TX <<proto>>
+rectangle "Search logic\n(the CPU itself,\noutside the protocol)" as ENGINE <<cpu>>
+rectangle "Not required (optional)\nBO CA EN RE RS BS ST NC X*\nmay be skipped on receive" as SKIP <<skip>>
+
+PC -right-> RX
+RX -right-> PARSE
+PARSE -right-> DEC
+DEC -down-> FSM
+FSM -left-> GEN
+GEN -left-> TX
+TX -left-> PC
+FSM <-down-> ENGINE : opponent move / own move
+DEC -up- SKIP : drop if matched
+
+@enduml

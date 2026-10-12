@@ -1,0 +1,36 @@
+@startuml
+title FPGA 向け最小実装のブロック図（必須コマンドだけで仕様適合）
+
+skinparam shadowing false
+hide stereotype
+skinparam defaultFontSize 15
+skinparam nodesep 40
+skinparam ranksep 45
+skinparam RectangleBackgroundColor<<proto>> #E3F2FD
+skinparam RectangleBackgroundColor<<cpu>> #FFF3E0
+skinparam RectangleBackgroundColor<<skip>> #F5F5F5
+skinparam RectangleBorderColor<<skip>> #9E9E9E
+skinparam RectangleFontColor<<skip>> #616161
+
+rectangle "PC\n(USB-UART\n変換器経由)" as PC
+
+rectangle "UART RX\n8N1・フロー制御なし\nボーレートは自由" as RX <<proto>>
+rectangle "行パーサ\n2 文字 + 引数 + CR LF\n文字間 100 ms で打切り\n空行は破棄" as PARSE <<proto>>
+rectangle "コマンド比較\nSB SW MO PA\nEB EW ED VE PI\n大文字固定・比較器のみ" as DEC <<proto>>
+rectangle "状態機械\nIDLE / MY_TURN / WAIT_OPP\n（起動直後だけ BOOT）" as FSM <<proto>>
+rectangle "応答生成\nMOd? / PA / +PI\n+VE02 / -00 固定" as GEN <<proto>>
+rectangle "UART TX\nRX と独立に送出\n（TX 中も RX を取りこぼさない）" as TX <<proto>>
+rectangle "思考ロジック\n（CPU 本体・プロトコル外）" as ENGINE <<cpu>>
+rectangle "実装しなくてよい（任意）\nBO CA EN RE RS BS ST NC X*\n受けても読み飛ばしてよい" as SKIP <<skip>>
+
+PC -right-> RX
+RX -right-> PARSE
+PARSE -right-> DEC
+DEC -down-> FSM
+FSM -left-> GEN
+GEN -left-> TX
+TX -left-> PC
+FSM <-down-> ENGINE : 相手の手 / 自分の手
+DEC -up- SKIP : 該当なら破棄
+
+@enduml
