@@ -1,27 +1,28 @@
 @startuml
-title Minimal FPGA implementation (required commands only are conformant)
+title Minimal FPGA implementation (required commands only)
 
 skinparam shadowing false
-hide stereotype
-skinparam defaultFontSize 15
-skinparam nodesep 40
-skinparam ranksep 45
-skinparam RectangleBackgroundColor<<proto>> #E3F2FD
+skinparam defaultTextAlignment center
+skinparam defaultFontSize 17
+skinparam nodesep 26
+skinparam ranksep 34
+skinparam RectangleBackgroundColor #E3F2FD
+skinparam RectangleBorderColor #2B6CB0
 skinparam RectangleBackgroundColor<<cpu>> #FFF3E0
-skinparam RectangleBackgroundColor<<skip>> #F5F5F5
-skinparam RectangleBorderColor<<skip>> #9E9E9E
-skinparam RectangleFontColor<<skip>> #616161
+skinparam RectangleBorderColor<<cpu>> #DD6B20
+skinparam RectangleBackgroundColor<<pc>> #FFFFE0
+skinparam RectangleBorderColor<<pc>> #B7791F
+hide stereotype
 
-rectangle "PC\n(via USB-UART\nconverter)" as PC
+rectangle "\n<size:30><b>PC</b></size>\n<size:14>USB-UART</size>\n" as PC <<pc>>
 
-rectangle "UART RX\n8N1, no flow control\nany baud rate" as RX <<proto>>
-rectangle "Line parser\n2 chars + args + CR LF\n100 ms inter-char timeout\ndrop empty lines" as PARSE <<proto>>
-rectangle "Command compare\nSB SW MO PA\nEB EW ED VE PI\nuppercase only" as DEC <<proto>>
-rectangle "State machine\nIDLE / MY_TURN / WAIT_OPP\n(BOOT only after reset)" as FSM <<proto>>
-rectangle "Response generator\nMOd? / PA / +PI\n+VE02 / fixed -00" as GEN <<proto>>
-rectangle "UART TX\nindependent of RX\n(never drop RX while sending)" as TX <<proto>>
-rectangle "Search logic\n(the CPU itself,\noutside the protocol)" as ENGINE <<cpu>>
-rectangle "Not required (optional)\nBO CA EN RE RS BS ST NC X*\nmay be skipped on receive" as SKIP <<skip>>
+rectangle "UART RX\n8N1" as RX
+rectangle "Line parser\n2 chars + CR LF" as PARSE
+rectangle "Command match\n9 commands" as DEC
+rectangle "State machine\nidle / mine / theirs" as FSM
+rectangle "Responder\nMO PA +PI +VE -00" as GEN
+rectangle "UART TX\nindependent of RX" as TX
+rectangle "Search logic\n(the CPU itself)" as ENGINE <<cpu>>
 
 PC -right-> RX
 RX -right-> PARSE
@@ -30,7 +31,8 @@ DEC -down-> FSM
 FSM -left-> GEN
 GEN -left-> TX
 TX -left-> PC
-FSM <-down-> ENGINE : opponent move / own move
-DEC -up- SKIP : drop if matched
+RX -[hidden]down-> TX
+PARSE -[hidden]down-> GEN
+FSM <-down-> ENGINE
 
 @enduml

@@ -1,27 +1,28 @@
 @startuml
-title FPGA 向け最小実装のブロック図（必須コマンドだけで仕様適合）
+title FPGA 向け最小実装（必須コマンドだけで適合）
 
 skinparam shadowing false
-hide stereotype
-skinparam defaultFontSize 15
-skinparam nodesep 40
-skinparam ranksep 45
-skinparam RectangleBackgroundColor<<proto>> #E3F2FD
+skinparam defaultTextAlignment center
+skinparam defaultFontSize 17
+skinparam nodesep 26
+skinparam ranksep 34
+skinparam RectangleBackgroundColor #E3F2FD
+skinparam RectangleBorderColor #2B6CB0
 skinparam RectangleBackgroundColor<<cpu>> #FFF3E0
-skinparam RectangleBackgroundColor<<skip>> #F5F5F5
-skinparam RectangleBorderColor<<skip>> #9E9E9E
-skinparam RectangleFontColor<<skip>> #616161
+skinparam RectangleBorderColor<<cpu>> #DD6B20
+skinparam RectangleBackgroundColor<<pc>> #FFFFE0
+skinparam RectangleBorderColor<<pc>> #B7791F
+hide stereotype
 
-rectangle "PC\n(USB-UART\n変換器経由)" as PC
+rectangle "\n<size:30><b>PC</b></size>\n<size:14>USB-UART</size>\n" as PC <<pc>>
 
-rectangle "UART RX\n8N1・フロー制御なし\nボーレートは自由" as RX <<proto>>
-rectangle "行パーサ\n2 文字 + 引数 + CR LF\n文字間 100 ms で打切り\n空行は破棄" as PARSE <<proto>>
-rectangle "コマンド比較\nSB SW MO PA\nEB EW ED VE PI\n大文字固定・比較器のみ" as DEC <<proto>>
-rectangle "状態機械\nIDLE / MY_TURN / WAIT_OPP\n（起動直後だけ BOOT）" as FSM <<proto>>
-rectangle "応答生成\nMOd? / PA / +PI\n+VE02 / -00 固定" as GEN <<proto>>
-rectangle "UART TX\nRX と独立に送出\n（TX 中も RX を取りこぼさない）" as TX <<proto>>
-rectangle "思考ロジック\n（CPU 本体・プロトコル外）" as ENGINE <<cpu>>
-rectangle "実装しなくてよい（任意）\nBO CA EN RE RS BS ST NC X*\n受けても読み飛ばしてよい" as SKIP <<skip>>
+rectangle "UART RX\n8N1" as RX
+rectangle "行パーサ\n2 文字 + CR LF" as PARSE
+rectangle "コマンド比較\n9 種だけ" as DEC
+rectangle "状態機械\n待機 / 自分 / 相手" as FSM
+rectangle "応答生成\nMO PA +PI +VE -00" as GEN
+rectangle "UART TX\n受信と独立" as TX
+rectangle "思考ロジック\n（CPU 本体）" as ENGINE <<cpu>>
 
 PC -right-> RX
 RX -right-> PARSE
@@ -30,7 +31,8 @@ DEC -down-> FSM
 FSM -left-> GEN
 GEN -left-> TX
 TX -left-> PC
-FSM <-down-> ENGINE : 相手の手 / 自分の手
-DEC -up- SKIP : 該当なら破棄
+RX -[hidden]down-> TX
+PARSE -[hidden]down-> GEN
+FSM <-down-> ENGINE
 
 @enduml
