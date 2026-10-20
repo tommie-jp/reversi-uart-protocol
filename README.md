@@ -280,7 +280,8 @@ Follows the standard Othello notation (World Othello Federation / WOF style).
 - **Rows**: `1`-`8` (top to bottom; `a1` is the upper-left)
 - **Coordinates inside MOVE commands are lowercase** (`a`-`h`). Examples:
   `MOd3`, `MOh8`, `MOa1`
-- Uppercase is also accepted (see §5)
+- Uppercase coordinates are not accepted (`MOD3` is invalid; the receiver
+  returns `-04`. See §5)
 - **`BO` ordering**: row-major `a1, b1, c1, ... h1, a2, b2, ... h8` for a total
   of 64 chars (i.e. row 1 → row 8)
 - **Initial position**: `d4=W(2), e4=B(1), d5=B(1), e5=W(2)` (everything else
@@ -505,7 +506,8 @@ To honor "CR+LF only" from §5, configure the terminal in CRLF mode.
 | **Arduino IDE Serial Monitor** | choose `Both NL & CR` in the bottom-right dropdown |
 
 The default is often LF only, so verify the setting on first connection. If
-LF only is sent, the CPU returns `ER` per §5.1.
+LF only is sent, the CPU returns `-03` (`-00` in a minimal implementation)
+per §5.1.
 
 ### 14.2 Design Rationale: Key Decisions
 
@@ -519,7 +521,8 @@ LF only is sent, the CPU returns `ER` per §5.1.
   clear (commands = uppercase, coordinates = lowercase).
 - **Convention from related protocols**: most Othello-family protocols
   (e.g. NBoard Protocol) use uppercase commands.
-- **Typo detection**: a lowercase send returns `ER` immediately, helping
+- **Typo detection**: a lowercase send returns `-02` (`-00` in a minimal
+  implementation) immediately, helping
   catch mis-implementations early.
 
 #### CR+LF Only (§5)
