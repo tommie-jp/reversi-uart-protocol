@@ -43,7 +43,7 @@ Author: [tommie.jp](https://tommie.jp) ([@tommie-jp](https://github.com/tommie-j
       - [Uppercase Commands (§5)](#uppercase-commands-5)
       - [CR+LF Only (§5)](#crlf-only-5)
       - [CR+LF Trade-offs](#crlf-trade-offs)
-      - [`+` / `-` Response Prefix (§5, §7)](#---response-prefix-5-7)
+      - [`+` / `-` Response Prefix (§5, §7)](#----response-prefix-5-7)
       - [`X*` Extension Namespace (§5)](#x-extension-namespace-5)
   - [15. Open Issues](#15-open-issues)
   - [16. Design Review](#16-design-review)
@@ -360,7 +360,8 @@ protocol semantics (message format, timing) defined here are met, the CPU's
 internal state representation is up to the implementer.
 
 <!-- markdownlint-disable-next-line MD033 -->
-<img src="diagrams/state-external-cpu.en.png" alt="CPU-side state diagram (example)" width="1000" />
+<img src="diagrams/state-external-cpu.en.png"
+  alt="CPU-side state diagram (example)" width="1000" />
 
 PlantUML source: [diagrams/state-external-cpu.en.puml](diagrams/state-external-cpu.en.puml)
 

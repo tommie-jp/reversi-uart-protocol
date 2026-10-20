@@ -29,6 +29,7 @@ style: |
   section.chapter h1 { color: #fff; font-size: 48px; }
 ---
 
+<!-- markdownlint-disable MD025 MD033 -->
 <!-- _class: title -->
 <!-- _paginate: false -->
 
