@@ -261,7 +261,7 @@ fall back to `-00` (Generic) when the cause cannot be pinned down.
 | `02` | Lowercase command | lowercase command (`pi\r\n`, `Pi\r\n`, etc., §5) |
 | `03` | Line ending violation | non-CR+LF line ending (LF alone `PI\n`, CR alone `PI\r`, etc., §5) |
 | `04` | Invalid coordinate format | `MOz9`, `MO9d`, `MOD3`, etc. (§8) |
-| `05` | Illegal move | move that is not legal under the current board (see [open-issues §2](検討事項.md#2-無効な着手--不正応答への対応)) |
+| `05` | Illegal move | move that is not legal under the current board (see [open-issues §2](doc/検討事項.md#2-無効な着手--不正応答への対応)) |
 | `06` | Invalid protocol state | a receive that §12 forbids in the current state (e.g. `SB` mid-game) |
 | `07` - `29` | Reserved | for future spec versions (v0.3+) |
 | `30` - `99` | User-defined | available for individual CPU implementations |
@@ -302,7 +302,7 @@ PlantUML source: [diagrams/board-coord.en.puml](diagrams/board-coord.en.puml)
 - **`+`/`-` response prefix carries semantics** — the first character of a line
   distinguishes "self-initiated notification vs response" and "success vs
   error" (see §5). Inspired by POP3's `+OK`/`-ERR`.
-- **Responses required only for queries** — `PI`, `VE`, `X*` queries require
+- **Responses required only for queries** — `PI`, `VE`, `CA`, `X*` queries require
   a `+`/`-` response. Notifications (`SB`, `MO`, etc.) make a response optional.
 - **The CPU must not echo received bytes** — this is a machine-to-machine
   protocol, and an echo mixed into the receive stream would break parsing.
@@ -365,9 +365,10 @@ internal state representation is up to the implementer.
 
 PlantUML source: [diagrams/state-external-cpu.en.puml](diagrams/state-external-cpu.en.puml)
 
-The base behavior is purely reactive (respond to received messages). The only
-unsolicited send is `RE\r\n` right after BOOT (recovery request from in-game
-reset).
+The base behavior is purely reactive (respond to received messages). Apart
+from moves (`MO` / `PA` / `EN`), the basic unsolicited send is `RE\r\n` right
+after BOOT (recovery request from in-game reset). `RS` (§13.1), `BS`, `ST`
+and `NC` may also be sent optionally.
 
 | State | Role |
 | ----- | ---- |
@@ -392,6 +393,8 @@ reset).
 - On receiving `PI` → send `+PI` (**valid in all states except BOOT**)
 - On receiving `VE` → send `+VE<NN><name>` (**valid from C1 (IDLE) onward**;
   ignored during BOOT. `<NN>` is the 2-digit protocol version)
+- On receiving `CA` → send `+CA <list>` (**valid from C1 (IDLE) onward**;
+  optional. A CPU that does not implement it may reply `-01`)
 - On receiving `X*` (extension query) → if the CPU implementer has a handler,
   reply with `+X*[<data>]`; otherwise drop silently.
 
@@ -540,8 +543,6 @@ per §5.1.
   tradition.
 - **Affinity with the Windows toolchain**: Notepad, PowerShell, and Command
   Prompt natively handle CR+LF.
-- **Consistency with Othello-family protocols**: aligns with NBoard Protocol
-  and other existing Othello-engine wire formats (see §17).
 - **Robust line-end detection**: the byte sequence `0x0D 0x0A` does not occur
   in plain ASCII text, so it is more resilient against false positives than a
   bare LF (and recovers cleanly after binary-noise corruption). An isolated
@@ -579,8 +580,9 @@ Introduced in v0.2. A 1-character scheme **inspired by POP3 (RFC 1939)
 - **Distinguishes "self-initiated vs response" at the grammar level**: in
   v0.1, `MO` was used both for the opponent's move and the CPU's own move,
   requiring state-machine context (MY_TURN / WAIT_OPP) to disambiguate.
-  In v0.2, `+MO` (response) and `MO` (self-initiated) are immediately
-  distinguishable.
+  In v0.2, every response carries a `+` / `-` prefix, so a line without one
+  (such as `MO`) is identified as a self-initiated notification from its
+  first byte.
 - **Distinguishes "success vs error" with one byte**: `+VE02name` /
   `-04 bad` lets a parser categorize replies by the prefix alone, without
   needing to know what every error code means.
@@ -633,13 +635,13 @@ Comparison with alternatives:
 ## 15. Open Issues
 
 Unresolved issues during the draft phase are tracked in a separate file:
-[open-issues.md (検討事項.md)](検討事項.md). Implementer feedback is welcome.
+[open-issues.md (検討事項.md)](doc/検討事項.md). Implementer feedback is welcome.
 
 ## 16. Design Review
 
 Review notes from four perspectives (custom CPU author / FPGA designer /
 Reversi player / PC-side implementer) live in a separate file:
-[design-review.md (設計レビュー.md)](設計レビュー.md).
+[design-review.md (設計レビュー.md)](doc/設計レビュー.md).
 
 ## 17. Possible Future Additions
 
@@ -652,7 +654,7 @@ compatibility with other protocols.
 - **Note Thor notation compatibility in §8**: stating that the `f5` part of
   `MOf5` matches the coordinate notation of the Thor games database (WOF
   official) would help with replay/analysis interop.
-- **Add "automatic opening-name detection" to [open-issues](検討事項.md)**:
+- **Add "automatic opening-name detection" to [open-issues](doc/検討事項.md)**:
   whether to include this in scope. The likely conclusion is "PC-side
   feature" (the CPU does not need to know opening names), but explicitly
   mentioning it once avoids re-litigating the design later.
@@ -660,13 +662,15 @@ compatibility with other protocols.
   e.g. 30-min sudden-death and Fischer increment, but this document only
   defines per-move timeout; whole-game time management is a PC-side / rules-
   layer concern.
-- **Add "Thor-format game export" to [open-issues](検討事項.md)**: whether
+- **Add "Thor-format game export" to [open-issues](doc/検討事項.md)**: whether
   this protocol's results should be converted to Thor format and stored on
   the PC. Where to draw the line between CPU and PC.
-- **★ Stronger NBoard Protocol compatibility** (details in [NBoard互換性検討.md](NBoard互換性検討.md))
+- **★ Stronger NBoard Protocol compatibility** (details in [NBoard互換性検討.md](doc/NBoard互換性検討.md))
   - ✅ **Already reflected**: `ST<text>\r\n` (STATUS), `NC<nodes>,<ms>\r\n`
-    (NODESTATS), the `p<N>` protocol-version suffix in the `VE` reply (all
+    (NODESTATS), the 2-digit protocol version in `+VE<NN>` (`ST` / `NC` are
     optional CPU-side features)
+  - **Difference**: NBoard Protocol ends lines with LF only, while this spec
+    requires CR+LF only (§5), so NBoard lines cannot be passed through as-is
   - Not yet (medium-to-high cost): `SD<n>` (search depth, can be implemented
     as the v0.2 `XS` extension), `HI<n>` (candidate-move query, e.g. `XH`),
     `BH` (Thor-format history transfer), GGF compatibility mode

@@ -5,7 +5,7 @@
 作成者: [tommie.jp](https://tommie.jp)
 
 NBoard Protocol の概要メモ。
-[README.md](README.md) の設計検討時の比較対象として
+[README.ja.md](../README.ja.md) の設計検討時の比較対象として
 調査した内容を記録する。
 
 > **注記**: 「オセロ」は株式会社メガハウスの登録商標です。本書では「オセロ」の
@@ -82,7 +82,7 @@ Zebra など主要なエンジンはほぼ全て NBoard Protocol を喋れる。
   stdin/stdout で会話
 - ❌ **自作 FPGA / MCU を UART 経由で繋ぎたい**
   → NBoard Protocol は stdin/stdout 前提で物理シリアルを想定していない。
-  [本書 UART プロトコル](README.md)のほうが適している
+  [本書 UART プロトコル](../README.ja.md)のほうが適している
 - 🤔 **両方対応したい**
   → PC 側で「NBoard アダプタ」と「UART アダプタ」の 2 種類を
   用意し、どちらも同じ内部インターフェースに揃える設計がクリーン

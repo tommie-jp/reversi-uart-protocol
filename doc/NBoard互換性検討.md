@@ -4,7 +4,7 @@
 
 作成者: [tommie.jp](https://tommie.jp)
 
-[README.md](README.md) と [NBoard Protocol](NBoard-Protocol概要.md) の
+[README.ja.md](../README.ja.md) と [NBoard Protocol](NBoard-Protocol概要.md) の
 思想・機能面の差分整理と、互換性を高める拡張案の検討メモ。
 
 > **注記**: 「オセロ」は株式会社メガハウスの登録商標です。本書では「オセロ」の
@@ -156,5 +156,5 @@ FPGA 向けの 2 文字ニモニックは残したまま、**機能面を NBoard
 
 ## 参考
 
-- [README.md](README.md) — 本書
+- [README.ja.md](../README.ja.md) — 本書
 - [NBoard-Protocol概要.md](NBoard-Protocol概要.md) — NBoard Protocol のリファレンス

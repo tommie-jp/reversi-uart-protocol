@@ -24,6 +24,8 @@ style: |
   .cols-wide { display: grid; grid-template-columns: 3fr 2fr; gap: 28px; align-items: start; }
   .note { font-size: 20px; color: #4a5568; }
   section.title { justify-content: center; }
+  .title-qr { position: absolute; right: 64px; bottom: 48px; text-align: center; font-size: 18px; color: #4a5568; }
+  .title-qr p { margin: 0; }
   section.title h1 { font-size: 52px; }
   section.chapter { justify-content: center; background: #2b6cb0; color: #fff; }
   section.chapter h1 { color: #fff; font-size: 48px; }
@@ -42,6 +44,14 @@ style: |
 tommie.jp ([@tommie-jp](https://github.com/tommie-jp))
 
 <p class="note">「オセロ」は株式会社メガハウスの登録商標です。本資料では一般名詞の「リバーシ」を使います。</p>
+
+<div class="title-qr">
+
+![w:160](qr-github.png)
+
+GitHub
+
+</div>
 
 ---
 
@@ -288,7 +298,7 @@ tommie.jp ([@tommie-jp](https://github.com/tommie-jp))
   ...
 ```
 
-- CPU が自分から送るのは起動直後の `RE` だけ
+- CPU は起動直後に、自分から `RE` を送る
 - PC は `RE` を受けたら **直前に送った指示**（`SB`・`MO`・`BO` など）を送り直す
 - 24 時間動かすボット運用で役に立つ
 
