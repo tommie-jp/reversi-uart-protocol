@@ -6,6 +6,10 @@
 
 Author: [tommie.jp](https://tommie.jp) ([@tommie-jp](https://github.com/tommie-jp))
 
+Handout: the pamphlet for the 2026-11-28 homebrew CPU meetup
+([PDF](https://tommie-jp.github.io/soft-fpga/docs/08-pamphlet/pamphlet.pdf),
+in Japanese)
+
 - A communication protocol for connecting a CPU that implements a Reversi
   algorithm (intended for FPGA, discrete logic, etc.) to a PC over UART, so it
   can talk to PC-side software via serial.

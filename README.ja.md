@@ -6,6 +6,8 @@
 
 提案者: [tommie.jp](https://tommie.jp) ([@tommie-jp](https://github.com/tommie-jp))
 
+配布資料: 2026-11-28 の勉強会（自作CPUを語る会）で配るパンフレット（[PDF](https://tommie-jp.github.io/soft-fpga/docs/08-pamphlet/pamphlet.pdf)）
+
 - 自作 CPU を PC に UART で接続し、PC 上のソフトと通信するためのプロトコル仕様。
 - 想定する CPU は、リバーシアルゴリズムを FPGA / ディスクリートなどに実装したもの。
 - CPU 製作者が本書だけを読めば実装できるよう規定する。
